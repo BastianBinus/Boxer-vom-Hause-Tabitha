@@ -403,19 +403,101 @@
   translate: 0 50%;
 }
 
+/* ── Hamburger nav toggle ── */
+.nav-toggle-btn {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 8px 7px;
+  background: transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-muted);
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.nav-toggle-btn:hover {
+  color: var(--color-ink);
+  background: var(--color-accent);
+}
+
+.hamburger-bar {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+.nav-toggle-btn[aria-expanded='true'] .hamburger-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav-toggle-btn[aria-expanded='true'] .hamburger-bar:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.nav-toggle-btn[aria-expanded='true'] .hamburger-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
 /* ── Responsive ── */
-@media (max-width: 600px) {
+@media (max-width: 640px) {
+  .site-header {
+    position: relative;
+  }
+
   .site-header-inner {
+    flex-wrap: wrap;
     padding: 0 16px;
+    gap: 8px;
+    height: auto;
+    min-height: 60px;
+    align-items: center;
+  }
+
+  .site-brand {
+    flex: 1;
+    line-height: 60px;
+  }
+
+  .theme-toggle-btn {
+    order: 1;
+  }
+
+  .nav-toggle-btn {
+    display: flex;
+    order: 2;
   }
 
   .site-nav {
+    display: none;
+    width: 100%;
+    order: 3;
+    flex-direction: column;
     gap: 0;
+    padding: 4px 0 8px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .site-nav.is-open {
+    display: flex;
   }
 
   .nav-link {
-    padding: 6px 8px;
-    font-size: 13px;
+    padding: 13px 4px;
+    font-size: 15px;
+    border-radius: 0;
+    border-bottom: 1px solid var(--color-border);
+    text-align: center;
+  }
+
+  .nav-link:last-child {
+    border-bottom: none;
   }
 
   .page-inner {
@@ -430,6 +512,13 @@
   .hund-avatar-fallback {
     width: 100px;
     height: 100px;
+  }
+
+  .site-footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+    padding: 16px;
   }
 }
 
