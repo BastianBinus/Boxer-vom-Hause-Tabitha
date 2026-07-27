@@ -375,6 +375,33 @@
   border: 0;
 }
 
+/* ── Theme toggle (Horizon) ── */
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  color: var(--color-muted);
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.theme-toggle-btn:hover {
+  color: var(--color-ink);
+  background: var(--color-accent);
+}
+
+.horizon-sun {
+  transition: translate 0.75s cubic-bezier(0, 0, 0.15, 1);
+}
+
+:root[data-theme='dark'] .horizon-sun,
+.dark .horizon-sun {
+  translate: 0 50%;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .site-header-inner {
