@@ -111,14 +111,13 @@ export function Layout() {
         </div>
 
         <div className="sidebar-footer">
-          <button
-            className="btn btn-ghost btn-sm"
+          <Horizon
+            duration={750}
             onClick={() => setDark(d => !d)}
-            style={{ justifyContent: 'flex-start', padding: '11px 12px', width: '100%', gap: 8 }}
-          >
-            <Horizon duration={750} style={{ fontSize: 20, pointerEvents: 'none' }} />
-            {dark ? 'Hell' : 'Dunkel'}
-          </button>
+            className="btn btn-ghost btn-sm"
+            style={{ justifyContent: 'flex-start', padding: '11px 12px', width: '100%', gap: 8, fontSize: 20 }}
+            aria-label={dark ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren'}
+          />
           <button
             className="btn btn-ghost btn-sm"
             onClick={logout}
@@ -146,13 +145,13 @@ export function Layout() {
             {label}
           </NavLink>
         ))}
-        <button
-          className="bottom-nav-item"
+        <Horizon
+          duration={750}
           onClick={() => setDark(d => !d)}
-        >
-          <span className="bottom-nav-icon"><Horizon duration={750} style={{ fontSize: 20, pointerEvents: 'none' }} /></span>
-          {dark ? 'Hell' : 'Dunkel'}
-        </button>
+          className="bottom-nav-item"
+          style={{ fontSize: 20 }}
+          aria-label={dark ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren'}
+        />
       </nav>
     </div>
   )
