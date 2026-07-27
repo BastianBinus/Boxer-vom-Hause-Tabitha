@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { usePosts } from '../hooks/usePosts'
 import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog'
 import { PublishToggle } from '../components/PublishToggle'
+import { PageSpinner } from '../components/Spinner'
 import { supabase } from '../lib/supabaseClient'
 
 export function PostsListPage() {

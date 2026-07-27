@@ -1,10 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useDogs, useDog } from '../hooks/useDogs'
 import { PublishToggle } from '../components/PublishToggle'
 import { PhotoUpload } from '../components/PhotoUpload'
+import { useShake } from '../hooks/useShake'
+import { FormError } from '../components/FormError'
+import { StatusButton } from '../components/StatusButton'
+import type { SaveStatus } from '../components/StatusButton'
+import { PageSpinner } from '../components/Spinner'
 import type { TablesInsert } from '../types/database.types'
 
 type ParentMode = 'db' | 'extern'
@@ -35,8 +40,10 @@ export function DogFormPage() {
 
   const [allDogs, setAllDogs] = useState<Array<{ id: string; name: string }>>([])
   const [savedId, setSavedId] = useState<string | null>(id ?? null)
-  const [saving, setSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [error, setError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const triggerShake = useShake(formRef)
 
   useEffect(() => {
     supabase.from('hunde').select('id, name').is('deleted_at', null).order('name').then(({ data }) => {
@@ -73,7 +80,7 @@ export function DogFormPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setSaving(true)
+    setSaveStatus('loading')
     setError(null)
     try {
       const payload: TablesInsert<'hunde'> = {
@@ -92,20 +99,25 @@ export function DogFormPage() {
       }
       if (isEdit && savedId) {
         await update(savedId, payload)
+        setSaveStatus('success')
+        setTimeout(() => setSaveStatus('idle'), 1500)
       } else {
         const newDog = await create(payload)
         setSavedId(newDog.id)
-        navigate(`/hunde/${newDog.id}/bearbeiten`, { replace: true })
+        setSaveStatus('success')
+        setTimeout(() => navigate(`/hunde/${newDog.id}/bearbeiten`, { replace: true }), 750)
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Unbekannter Fehler')
+      const msg = err instanceof Error ? err.message : 'Unbekannter Fehler'
+      setError(msg)
+      triggerShake()
+      setSaveStatus('idle')
     }
-    setSaving(false)
   }
 
   const otherDogs = allDogs.filter(d => d.id !== savedId)
 
-  if (isEdit && dogLoading) return <div className="empty-state">Wird geladen…</div>
+  if (isEdit && dogLoading) return <PageSpinner />
 
   return (
     <>
@@ -118,10 +130,10 @@ export function DogFormPage() {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="form">
+      <form ref={formRef} onSubmit={handleSubmit} className="form">
         <PublishToggle value={veroeffentlicht} onChange={setVeroeffentlicht} />
 
-        {error && <div className="alert alert-error">{error}</div>}
+        <FormError message={error} />
 
         <div className="form-grid">
           <div className="field">
@@ -244,9 +256,7 @@ export function DogFormPage() {
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Wird gespeichert…' : 'Speichern'}
-          </button>
+          <StatusButton status={saveStatus}>Speichern</StatusButton>
           <button
             type="button"
             className="btn btn-ghost"

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useDogs } from '../hooks/useDogs'
 import { calcAge } from '../lib/calcAge'
+import { PageSpinner } from '../components/Spinner'
 
 type Filter = 'alle' | 'live' | 'entwurf'
 
@@ -23,7 +24,7 @@ export function DogsListPage() {
     return matchSearch && matchFilter
   })
 
-  if (loading) return <p style={{ color: 'var(--color-muted)', fontSize: 14 }}>Wird geladen…</p>
+  if (loading) return <PageSpinner />
 
   return (
     <>

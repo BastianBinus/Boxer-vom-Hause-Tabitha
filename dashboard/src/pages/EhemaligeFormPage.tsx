@@ -1,9 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useEhemalige, useEhemaliger } from '../hooks/useEhemalige'
 import { PublishToggle } from '../components/PublishToggle'
 import { GalerieUpload } from '../components/GalerieUpload'
+import { useShake } from '../hooks/useShake'
+import { FormError } from '../components/FormError'
+import { StatusButton } from '../components/StatusButton'
+import type { SaveStatus } from '../components/StatusButton'
+import { PageSpinner } from '../components/Spinner'
 
 export function EhemaligeFormPage() {
   const { id } = useParams<{ id: string }>()
@@ -21,8 +26,10 @@ export function EhemaligeFormPage() {
   const [beschreibung, setBeschreibung] = useState('')
   const [bilder, setBilder] = useState<string[]>([])
   const [veroeffentlicht, setVeroeffentlicht] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [error, setError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const triggerShake = useShake(formRef)
 
   useEffect(() => {
     if (!item) return
@@ -38,7 +45,7 @@ export function EhemaligeFormPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setSaving(true)
+    setSaveStatus('loading')
     setError(null)
     try {
       const payload = {
@@ -53,20 +60,23 @@ export function EhemaligeFormPage() {
       }
       if (isEdit && id) {
         await update(id, payload)
-        navigate('/ehemalige')
+        setSaveStatus('success')
+        setTimeout(() => navigate('/ehemalige'), 750)
       } else {
         const data = await create(payload)
         setSavedId(data.id)
-        navigate(`/ehemalige/${data.id}/bearbeiten`)
+        setSaveStatus('success')
+        setTimeout(() => navigate(`/ehemalige/${data.id}/bearbeiten`), 750)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unbekannter Fehler')
-    } finally {
-      setSaving(false)
+      const msg = err instanceof Error ? err.message : 'Unbekannter Fehler'
+      setError(msg)
+      triggerShake()
+      setSaveStatus('idle')
     }
   }
 
-  if (isEdit && itemLoading) return <div className="empty-state">Wird geladen…</div>
+  if (isEdit && itemLoading) return <PageSpinner />
 
   return (
     <div className="page">
@@ -75,10 +85,10 @@ export function EhemaligeFormPage() {
         <Link to="/ehemalige" className="btn btn-ghost">Abbrechen</Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="form">
+      <form ref={formRef} onSubmit={handleSubmit} className="form">
         <PublishToggle value={veroeffentlicht} onChange={setVeroeffentlicht} />
 
-        {error && <div className="alert alert-error">{error}</div>}
+        <FormError message={error} />
 
         <div className="field">
           <label className="field-label" htmlFor="titel">Titel *</label>
@@ -162,9 +172,7 @@ export function EhemaligeFormPage() {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Speichert…' : 'Speichern'}
-          </button>
+          <StatusButton status={saveStatus}>Speichern</StatusButton>
         </div>
       </form>
     </div>

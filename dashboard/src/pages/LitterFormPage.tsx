@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useLitters, useLitter } from '../hooks/useLitters'
 import { useDogs } from '../hooks/useDogs'
-import { GalerieUpload } from '../components/GalerieUpload'
+import { useShake } from '../hooks/useShake'
+import { FormError } from '../components/FormError'
+import { StatusButton } from '../components/StatusButton'
+import type { SaveStatus } from '../components/StatusButton'
+import { PageSpinner } from '../components/Spinner'
 import type { TablesInsert } from '../types/database.types'
 
 type VaterMode = 'db' | 'extern'
@@ -16,7 +20,6 @@ export function LitterFormPage() {
   const { create, update } = useLitters()
   const { dogs } = useDogs()
 
-  const [savedId, setSavedId] = useState<string | null>(id ?? null)
   const [mutterId, setMutterId] = useState('')
   const [datum, setDatum] = useState('')
   const [anzahlRuden, setAnzahlRuden] = useState(0)
@@ -26,10 +29,10 @@ export function LitterFormPage() {
   const [vaterExternName, setVaterExternName] = useState('')
   const [vaterExternZwinger, setVaterExternZwinger] = useState('')
   const [notiz, setNotiz] = useState('')
-  const [inGalerie, setInGalerie] = useState(false)
-  const [galerieBilder, setGalerieBilder] = useState<string[]>([])
-  const [saving, setSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [error, setError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const triggerShake = useShake(formRef)
 
   useEffect(() => {
     if (!litter) return
@@ -38,8 +41,6 @@ export function LitterFormPage() {
     setAnzahlRuden(litter.anzahl_ruden)
     setAnzahlHuendinnen(litter.anzahl_huendinnen)
     setNotiz(litter.notiz ?? '')
-    setInGalerie(litter.in_galerie)
-    setGalerieBilder(Array.isArray(litter.galerie_bilder) ? (litter.galerie_bilder as string[]) : [])
     if (litter.vater_id) {
       setVaterMode('db')
       setVaterId(litter.vater_id)
@@ -55,7 +56,7 @@ export function LitterFormPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setSaving(true)
+    setSaveStatus('loading')
     setError(null)
     try {
       const payload: TablesInsert<'wuerfe'> = {
@@ -67,24 +68,20 @@ export function LitterFormPage() {
         vater_id: vaterMode === 'db' ? (vaterId || null) : null,
         vater_extern_name: vaterMode === 'extern' ? (vaterExternName || null) : null,
         vater_extern_zwinger: vaterMode === 'extern' ? (vaterExternZwinger || null) : null,
-        in_galerie: inGalerie,
-        galerie_bilder: galerieBilder.length > 0 ? galerieBilder : null,
       }
-      if (isEdit && id) {
-        await update(id, payload)
-        navigate('/wuerfe')
-      } else {
-        const data = await create(payload)
-        setSavedId(data.id)
-        navigate(`/wuerfe/${data.id}/bearbeiten`)
-      }
+      if (isEdit && id) await update(id, payload)
+      else await create(payload)
+      setSaveStatus('success')
+      setTimeout(() => navigate('/wuerfe'), 750)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Unbekannter Fehler')
+      const msg = err instanceof Error ? err.message : 'Unbekannter Fehler'
+      setError(msg)
+      triggerShake()
+      setSaveStatus('idle')
     }
-    setSaving(false)
   }
 
-  if (isEdit && litterLoading) return <div className="empty-state">Wird geladen…</div>
+  if (isEdit && litterLoading) return <PageSpinner />
 
   return (
     <>
@@ -92,8 +89,8 @@ export function LitterFormPage() {
         <h1 className="page-title">{isEdit ? 'Wurf bearbeiten' : 'Neuer Wurf'}</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="form">
-        {error && <div className="alert alert-error">{error}</div>}
+      <form ref={formRef} onSubmit={handleSubmit} className="form">
+        <FormError message={error} />
 
         <div className="form-grid">
           <div className="field">
@@ -153,30 +150,8 @@ export function LitterFormPage() {
           <textarea className="field-input field-textarea" value={notiz} onChange={e => setNotiz(e.target.value)} />
         </div>
 
-        <div className="field">
-          <label className="radio-label" style={{ gap: 10 }}>
-            <input
-              type="checkbox"
-              checked={inGalerie}
-              onChange={e => setInGalerie(e.target.checked)}
-            />
-            <span style={{ fontWeight: 600, fontSize: 14 }}>In Ehemaligengalerie anzeigen</span>
-          </label>
-        </div>
-
-        <div className="field">
-          <label className="field-label">Galeriebilder</label>
-          <GalerieUpload
-            wurfId={savedId}
-            bilder={galerieBilder}
-            onChange={setGalerieBilder}
-          />
-        </div>
-
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Wird gespeichert…' : 'Speichern'}
-          </button>
+          <StatusButton status={saveStatus}>Speichern</StatusButton>
           <button type="button" className="btn btn-ghost" onClick={() => navigate('/wuerfe')}>
             Abbrechen
           </button>

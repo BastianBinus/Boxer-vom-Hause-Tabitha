@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useSales } from '../hooks/useSales'
 import { useBuyers } from '../hooks/useBuyers'
 import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog'
+import { PageSpinner } from '../components/Spinner'
 
 export function SalesListPage() {
   const { wurfId } = useParams<{ wurfId: string }>()
@@ -12,7 +13,7 @@ export function SalesListPage() {
 
   const buyerName = (id: string | null) => buyers.find(b => b.id === id)?.name ?? '—'
 
-  if (loading) return <div className="empty-state">Wird geladen…</div>
+  if (loading) return <PageSpinner />
 
   return (
     <>
