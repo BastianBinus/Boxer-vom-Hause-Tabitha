@@ -9,8 +9,20 @@ export function LittersListPage() {
   const { litters, loading, softDelete } = useLitters()
   const { dogs } = useDogs()
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+  const [year, setYear] = useState<string>('alle')
 
   const dogName = (id: string) => dogs.find(d => d.id === id)?.name ?? id
+
+  const years = ['alle', ...Array.from(
+    new Set(litters.map(w => w.datum?.slice(0, 4)).filter(Boolean))
+  ).sort((a, b) => Number(b) - Number(a))]
+
+  const filtered = litters.filter(w => {
+    const matchSearch = dogName(w.mutter_id).toLowerCase().includes(search.toLowerCase())
+    const matchYear = year === 'alle' ? true : w.datum?.startsWith(year)
+    return matchSearch && matchYear
+  })
 
   if (loading) return <PageSpinner />
 
@@ -21,11 +33,34 @@ export function LittersListPage() {
         <Link to="/wuerfe/neu" className="btn btn-primary">+ Neu</Link>
       </div>
 
-      {litters.length === 0 ? (
-        <div className="empty-state">Noch keine Würfe erfasst.</div>
+      <input
+        className="search-input"
+        placeholder="Mutter suchen…"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+      />
+
+      {years.length > 1 && (
+        <div className="chip-group">
+          {years.map(y => (
+            <button
+              key={y}
+              className={`chip${year === y ? ' active' : ''}`}
+              onClick={() => setYear(y)}
+            >
+              {y === 'alle' ? 'Alle Jahre' : y}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
+        <div className="empty-state">
+          {search ? `Keine Würfe für Mutter „${search}"` : 'Noch keine Würfe erfasst.'}
+        </div>
       ) : (
         <div className="card-list">
-          {litters.map(w => (
+          {filtered.map(w => (
             <div key={w.id} className="entity-card">
               <div className="entity-card-thumb">{w.datum?.slice(0, 4) ?? 'W'}</div>
               <div className="entity-card-info">

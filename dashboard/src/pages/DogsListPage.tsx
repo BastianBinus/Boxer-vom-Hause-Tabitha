@@ -5,6 +5,7 @@ import { calcAge } from '../lib/calcAge'
 import { PageSpinner } from '../components/Spinner'
 
 type Filter = 'alle' | 'live' | 'entwurf'
+type GenderFilter = 'alle' | 'Rüde' | 'Hündin'
 
 function initials(name: string) {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
@@ -14,6 +15,7 @@ export function DogsListPage() {
   const { dogs, loading } = useDogs()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<Filter>('alle')
+  const [gender, setGender] = useState<GenderFilter>('alle')
 
   const filtered = dogs.filter(d => {
     const matchSearch = d.name.toLowerCase().includes(search.toLowerCase())
@@ -21,7 +23,8 @@ export function DogsListPage() {
       filter === 'alle' ? true :
       filter === 'live' ? d.veroeffentlicht :
       !d.veroeffentlicht
-    return matchSearch && matchFilter
+    const matchGender = gender === 'alle' ? true : d.geschlecht === gender
+    return matchSearch && matchFilter && matchGender
   })
 
   if (loading) return <PageSpinner />
@@ -48,6 +51,18 @@ export function DogsListPage() {
             onClick={() => setFilter(f)}
           >
             {f === 'alle' ? 'Alle' : f === 'live' ? 'Veröffentlicht' : 'Entwurf'}
+          </button>
+        ))}
+      </div>
+
+      <div className="chip-group">
+        {(['alle', 'Rüde', 'Hündin'] as GenderFilter[]).map(g => (
+          <button
+            key={g}
+            className={`chip${gender === g ? ' active' : ''}`}
+            onClick={() => setGender(g)}
+          >
+            {g === 'alle' ? 'Alle Geschlechter' : g}
           </button>
         ))}
       </div>

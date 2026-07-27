@@ -6,14 +6,24 @@ import { PublishToggle } from '../components/PublishToggle'
 import { PageSpinner } from '../components/Spinner'
 import { supabase } from '../lib/supabaseClient'
 
+type PublishFilter = 'alle' | 'live' | 'entwurf'
+
 export function EhemaligeListPage() {
   const { items, loading, error, reload, softDelete } = useEhemalige()
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState<PublishFilter>('alle')
 
   const handleTogglePublish = async (id: string, current: boolean) => {
     await supabase.from('ehemalige').update({ veroeffentlicht: !current }).eq('id', id)
     await reload()
   }
+
+  const filtered = items.filter(item => {
+    const matchSearch = item.titel.toLowerCase().includes(search.toLowerCase())
+    const matchFilter = filter === 'alle' ? true : filter === 'live' ? item.veroeffentlicht : !item.veroeffentlicht
+    return matchSearch && matchFilter
+  })
 
   if (loading) return <p className="page-loading">Lädt…</p>
   if (error) return <p className="error-text">{error}</p>
@@ -25,14 +35,31 @@ export function EhemaligeListPage() {
         <Link to="/ehemalige/neu" className="btn btn-primary">+ Neuer Eintrag</Link>
       </div>
 
-      {items.length === 0 ? (
+      <input
+        className="search-input"
+        placeholder="Name suchen…"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+      />
+
+      <div className="chip-group">
+        {(['alle', 'live', 'entwurf'] as PublishFilter[]).map(f => (
+          <button key={f} className={`chip${filter === f ? ' active' : ''}`} onClick={() => setFilter(f)}>
+            {f === 'alle' ? 'Alle' : f === 'live' ? 'Veröffentlicht' : 'Entwurf'}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
         <div className="empty-state">
-          <p>Noch keine Einträge in der Ehemaligengalerie.</p>
-          <Link to="/ehemalige/neu" className="btn btn-primary">Ersten Eintrag erstellen</Link>
+          <p>{search || filter !== 'alle' ? 'Keine Treffer.' : 'Noch keine Einträge in der Ehemaligengalerie.'}</p>
+          {!search && filter === 'alle' && (
+            <Link to="/ehemalige/neu" className="btn btn-primary">Ersten Eintrag erstellen</Link>
+          )}
         </div>
       ) : (
         <div className="list-table">
-          {items.map(item => (
+          {filtered.map(item => (
             <div key={item.id} className="list-row">
               <div className="list-row-header">
                 <div className="list-row-main">

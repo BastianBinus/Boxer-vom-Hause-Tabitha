@@ -68,9 +68,10 @@ boxer-von-tabitha/
 ├── README.md
 ├── .stylelintrc.json                # kebab-case für Klassen/IDs
 │
-├── index.html                       # Home / News-Feed
+├── index.html                       # Home / News-Feed (Beiträge aus Supabase)
 ├── hunde.html                       # Hunde-Übersicht (live Supabase)
 ├── hund.html                        # Hunde-Detail (?id=..., live Supabase)
+├── ehemalige.html                   # Ehemaligengalerie — Full-Width-Slider, auto-scroll, Modal
 ├── ueber-mich.html                  # Züchterin-Bio (statischer Platzhalter)
 ├── kontakt.html                     # Kontaktformular (Formspree)
 ├── impressum.html                   # §5 TMG, Platzhalter-Identitätsdaten
@@ -98,7 +99,7 @@ boxer-von-tabitha/
 │   └── age.js                       # geteilt: Alter aus geburtsdatum berechnen
 │
 ├── data/
-│   └── posts.json                   # manuell gepflegte News-Einträge
+│   └── posts.json                   # veraltet — Beiträge werden jetzt aus Supabase (beitraege-Tabelle) geladen
 │
 ├── fonts/
 │   ├── sora/*.woff2
@@ -138,24 +139,32 @@ boxer-von-tabitha/
         │   └── ProtectedRoute.tsx
         ├── pages/
         │   ├── DashboardHome.tsx     # redirect zu DogsListPage — das IST der Home-Screen
-        │   ├── DogsListPage.tsx      # primärer Screen: durchsuchbare Hundeliste, die "Startseite"
+        │   ├── DogsListPage.tsx      # Suche nach Name, Filter Veröffentlicht/Entwurf/Geschlecht
         │   ├── DogFormPage.tsx
         │   ├── DogDetailPage.tsx     # verschachtelte Gesundheitschecks + Prüfungen
-        │   ├── LittersListPage.tsx
+        │   ├── LittersListPage.tsx   # Suche nach Mutter, Filter nach Jahr
         │   ├── LitterFormPage.tsx
         │   ├── BuyersListPage.tsx
         │   ├── BuyerFormPage.tsx
         │   ├── SalesListPage.tsx
         │   ├── SaleFormPage.tsx
+        │   ├── PostsListPage.tsx     # Suche nach Titel, Filter Veröffentlicht/Entwurf/Jahr
+        │   ├── PostFormPage.tsx
+        │   ├── EhemaligeListPage.tsx # Suche nach Name, Filter Veröffentlicht/Entwurf
+        │   ├── EhemaligeFormPage.tsx # inkl. Multi-Foto-Upload via GalerieUpload
         │   └── TrashPage.tsx
         ├── components/
         │   ├── Layout.tsx
         │   ├── ConfirmDeleteDialog.tsx
         │   ├── PublishToggle.tsx
-        │   ├── PhotoUpload.tsx       # Dateiauswahl + Vorschau, lädt zu Storage hoch, setzt foto_url
-        │   └── forms/…
+        │   ├── PhotoUpload.tsx       # Einzelfoto-Upload → foto_url auf hunde-Tabelle
+        │   ├── GalerieUpload.tsx     # Multi-Foto-Upload für Ehemalige (bucket + entityId + bilder[])
+        │   ├── Spinner.tsx           # PageSpinner für Loading-States
+        │   ├── StatusButton.tsx      # Button mit Loading/Success/Error-State
+        │   └── FormError.tsx         # animierter Fehlerhinweis mit slide-in + useShake
         ├── hooks/
-        │   └── useDogs.ts, useHealthChecks.ts, useExams.ts, useLitters.ts, useBuyers.ts, useSales.ts, useTrash.ts
+        │   └── useDogs.ts, useHealthChecks.ts, useExams.ts, useLitters.ts, useBuyers.ts,
+        │       useSales.ts, usePosts.ts, useEhemalige.ts, useTrash.ts
         └── styles/
             └── tokens.css            # portierte Marken-Tokens fürs Dashboard-UI (identisch zu css/tokens.css)
 ```
@@ -752,8 +761,12 @@ Storage-Bucket), echtes Supabase-Projekt via MCP provisionieren (Abschnitt
 3), anwenden, verifizieren, TS-Types generieren, Platzhalter-Zeilen seeden.
 *Meilenstein: Supabase-Projekt live, Schema+RLS+Storage sauber verifiziert,
 Seed-Daten vorhanden.*
-**Status: ✅ Schema+RLS+Cron+Storage+Types erledigt.** Seed-Daten noch
-offen.
+**Status: ✅ Schema+RLS+Cron+Storage+Types erledigt.** Seed-Daten noch offen.
+
+Zusätzlich in Phase 4 ergänzt (eigene Migrationen):
+- **`beitraege`-Tabelle**: `id, titel, inhalt, datum, bild_url, veroeffentlicht, deleted_at` — ersetzt `data/posts.json`
+- **`ehemalige`-Tabelle**: `id, titel, beschreibung, bilder (text[]), datum, anzahl_welpen, veroeffentlicht, deleted_at` — Freitext-Hundenamen, kein FK zu `hunde`
+- **`ehemalige-fotos`-Bucket**: öffentlich, 5 MB, JPEG/PNG/WebP — analog zu `hundefotos`
 
 **Zusatz — Admin-Tool-Mockup**: interaktives Mockup als UI-Vorlage vor dem
 React-Bau. **Status: ✅ erledigt** (siehe Abschnitt 5a).
@@ -774,10 +787,21 @@ bestätigen, dass veröffentlichte Hunde erscheinen, unveröffentlichte nicht,
 `kaeufer`/`verkaeufe` vom Browser aus unerreichbar sind.
 *Meilenstein: öffentliche Website funktional komplett gegen echte
 Supabase-Daten, Platzhalter-Inhalte.*
+**Status: ✅ erledigt** — Website läuft gegen echte Supabase-Daten auf
+https://boxer-vom-hause-tabitha.vercel.app.
 
-**Phase 4 — Politur & Härtung**: `get_advisors` nach echter Nutzung erneut
-laufen lassen, Accessibility-Durchgang (Kontrast, Fokus-Zustände, Labels),
-echte Inhalte einsetzen (Fotos, Bio, finale Impressum-/Datenschutz-Prüfung).
+**Phase 4 — Media + Ehemaligengalerie**:
+Beiträge aus statischem `posts.json` → `beitraege`-Supabase-Tabelle migriert,
+`video_url` auf `hunde` ergänzt, `ehemalige`-Tabelle + Storage-Bucket
+`ehemalige-fotos` angelegt, Dashboard-Seiten (PostsListPage/FormPage,
+EhemaligeListPage/FormPage) + Website `ehemalige.html` (Full-Width-Slider,
+Auto-Scroll, Modal) implementiert.
+**Status: ✅ erledigt.**
+
+**Phase 5 — Politur & Härtung**: `get_advisors` nach echter Nutzung erneut
+laufen lassen, echte Inhalte einsetzen (Fotos, Bio, finale
+Impressum-/Datenschutz-Prüfung), `[...]`-Platzhalter in 4 statischen Seiten
+füllen, Supabase-Auth-Konten anlegen, `VITE_ADMIN_PASSWORD` ändern.
 
 ---
 
