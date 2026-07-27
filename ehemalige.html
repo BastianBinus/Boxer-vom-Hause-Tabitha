@@ -16,7 +16,17 @@
   <main class="page-main">
     <div class="page-inner">
       <h1 class="page-title">Ehemaligengalerie</h1>
-      <div id="galerie-grid" class="galerie-grid"></div>
+
+      <div id="galerie-slider-wrap" class="galerie-slider-wrap" hidden>
+        <button id="galerie-prev" class="galerie-nav-btn" aria-label="Zurück">‹</button>
+        <div class="galerie-viewport">
+          <div id="galerie-track" class="galerie-track"></div>
+        </div>
+        <button id="galerie-next" class="galerie-nav-btn" aria-label="Weiter">›</button>
+      </div>
+
+      <div id="galerie-dots" class="galerie-dots"></div>
+
       <p id="galerie-empty" class="muted" hidden>Noch keine Würfe in der Galerie.</p>
     </div>
   </main>
