@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useBuyers } from '../hooks/useBuyers'
 import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog'
+import { PageSpinner } from '../components/Spinner'
 
 export function BuyersListPage() {
   const { buyers, loading, softDelete } = useBuyers()
@@ -13,7 +14,7 @@ export function BuyersListPage() {
     (b.ort ?? '').toLowerCase().includes(search.toLowerCase())
   )
 
-  if (loading) return <div className="empty-state">Wird geladen…</div>
+  if (loading) return <PageSpinner />
 
   return (
     <>

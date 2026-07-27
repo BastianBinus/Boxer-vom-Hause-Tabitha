@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datenschutz — Boxer vom Hause Tabitha</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <div data-partial="header"></div>
+
+  <main class="page-main">
+    <div class="page-inner">
+      <h1 class="page-title">Datenschutz</h1>
+
+      <div style="display: flex; flex-direction: column; gap: 32px; max-width: 620px;">
+        <section style="display: flex; flex-direction: column; gap: 8px;">
+          <h2 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--color-ink);">
+            Verantwortliche Stelle
+          </h2>
+          <p style="font-size: 15px; line-height: 1.7; color: var(--color-ink); margin: 0;">
+            [Vorname Nachname]<br>
+            [Strasse Nr], [PLZ Ort]<br>
+            E-Mail: <a href="mailto:kontakt@example.ch" style="color: var(--color-ink);">kontakt@example.ch</a>
+          </p>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 8px;">
+          <h2 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--color-ink);">
+            Erhobene Daten
+          </h2>
+          <p style="font-size: 15px; line-height: 1.7; color: var(--color-muted); margin: 0;">
+            Diese Website erhebt keine personenbezogenen Daten über Besucher. Es werden
+            keine Cookies gesetzt und keine Tracking-Dienste verwendet.
+          </p>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 8px;">
+          <h2 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--color-ink);">
+            Externe Dienste
+          </h2>
+          <p style="font-size: 15px; line-height: 1.7; color: var(--color-muted); margin: 0;">
+            Diese Website nutzt <strong style="color: var(--color-ink);">Supabase</strong>
+            für die Speicherung von Inhalten (Bilder, Texte). Die Verarbeitung erfolgt
+            auf Servern in der EU. Weitere Informationen finden Sie in der
+            <a href="https://supabase.com/privacy" target="_blank" rel="noopener" style="color: var(--color-ink);">Datenschutzerklärung von Supabase</a>.
+          </p>
+          <p style="font-size: 15px; line-height: 1.7; color: var(--color-muted); margin: 0;">
+            Eingebettete Videos werden über
+            <strong style="color: var(--color-ink);">YouTube (youtube-nocookie.com)</strong>
+            und/oder <strong style="color: var(--color-ink);">Vimeo</strong> geladen.
+            Beim Abspielen können Daten an diese Anbieter übertragen werden.
+          </p>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 8px;">
+          <h2 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--color-ink);">
+            Ihre Rechte
+          </h2>
+          <p style="font-size: 15px; line-height: 1.7; color: var(--color-muted); margin: 0;">
+            Sie haben das Recht auf Auskunft, Berichtigung und Löschung Ihrer
+            gespeicherten Daten. Kontaktieren Sie mich hierfür per E-Mail.
+          </p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div data-partial="footer"></div>
+
+  <script type="module">
+    import { loadPartials } from './js/partials.js'
+    loadPartials()
+  </script>
+</body>
+</html>

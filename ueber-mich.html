@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Über mich — Boxer vom Hause Tabitha</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <div data-partial="header"></div>
+
+  <main class="page-main">
+    <div class="page-inner">
+      <h1 class="page-title">Über mich</h1>
+
+      <div style="display: flex; flex-direction: column; gap: 24px; max-width: 640px;">
+        <p style="font-size: 16px; line-height: 1.7; color: var(--color-ink);">
+          Willkommen beim Boxer vom Hause Tabitha. Mein Name ist [Name], und ich züchte
+          Boxer mit Leidenschaft und Verantwortung — in enger Verbundenheit zu meinen Hunden
+          und ihren Familien.
+        </p>
+
+        <div class="card card-outlined" style="gap: 16px;">
+          <div style="font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--color-ink);">
+            Meine Philosophie
+          </div>
+          <p style="font-size: 15px; line-height: 1.7; color: var(--color-muted); margin: 0;">
+            Gesundheit, Charakter und Wesensart stehen bei mir an erster Stelle.
+            Jeder Wurf wird sorgfältig geplant, und ich begleite Käufer und ihre Boxer
+            ein Leben lang.
+          </p>
+        </div>
+
+        <div class="card card-filled" style="gap: 16px;">
+          <div style="font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--color-ink);">
+            Kurz über mich
+          </div>
+          <dl class="fact-list" style="gap: 0;">
+            <div class="fact-row">
+              <span class="fact-label">Züchterin seit</span>
+              <span class="fact-value">[Jahr]</span>
+            </div>
+            <div class="fact-row">
+              <span class="fact-label">Verband</span>
+              <span class="fact-value">[Verein / Verband]</span>
+            </div>
+            <div class="fact-row">
+              <span class="fact-label">Wohnort</span>
+              <span class="fact-value">[Ort], Schweiz</span>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div data-partial="footer"></div>
+
+  <script type="module">
+    import { loadPartials } from './js/partials.js'
+    loadPartials()
+  </script>
+</body>
+</html>

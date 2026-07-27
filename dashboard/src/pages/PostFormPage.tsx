@@ -1,8 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { usePosts, usePost } from '../hooks/usePosts'
 import { PublishToggle } from '../components/PublishToggle'
+import { useShake } from '../hooks/useShake'
+import { FormError } from '../components/FormError'
+import { StatusButton } from '../components/StatusButton'
+import type { SaveStatus } from '../components/StatusButton'
+import { PageSpinner } from '../components/Spinner'
 
 export function PostFormPage() {
   const { id } = useParams<{ id: string }>()
@@ -18,8 +23,10 @@ export function PostFormPage() {
   const [videoUrl, setVideoUrl] = useState('')
   const [imagesText, setImagesText] = useState('')
   const [veroeffentlicht, setVeroeffentlicht] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [error, setError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const triggerShake = useShake(formRef)
 
   useEffect(() => {
     if (!post) return
@@ -39,7 +46,7 @@ export function PostFormPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setSaving(true)
+    setSaveStatus('loading')
     setError(null)
     try {
       const payload = {
@@ -56,15 +63,17 @@ export function PostFormPage() {
       } else {
         await create(payload)
       }
-      navigate('/beitraege')
+      setSaveStatus('success')
+      setTimeout(() => navigate('/beitraege'), 750)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unbekannter Fehler')
-    } finally {
-      setSaving(false)
+      const msg = err instanceof Error ? err.message : 'Unbekannter Fehler'
+      setError(msg)
+      triggerShake()
+      setSaveStatus('idle')
     }
   }
 
-  if (isEdit && postLoading) return <div className="empty-state">Wird geladen…</div>
+  if (isEdit && postLoading) return <PageSpinner />
 
   return (
     <div className="page">
@@ -73,10 +82,10 @@ export function PostFormPage() {
         <Link to="/beitraege" className="btn btn-ghost">Abbrechen</Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="form">
+      <form ref={formRef} onSubmit={handleSubmit} className="form">
         <PublishToggle value={veroeffentlicht} onChange={setVeroeffentlicht} />
 
-        {error && <div className="alert alert-error">{error}</div>}
+        <FormError message={error} />
 
         <div className="form-grid">
           <div className="field">
@@ -151,9 +160,7 @@ export function PostFormPage() {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Speichert…' : 'Speichern'}
-          </button>
+          <StatusButton status={saveStatus}>Speichern</StatusButton>
         </div>
       </form>
     </div>

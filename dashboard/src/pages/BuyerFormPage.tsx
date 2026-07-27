@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useBuyers } from '../hooks/useBuyers'
+import { useShake } from '../hooks/useShake'
+import { FormError } from '../components/FormError'
+import { StatusButton } from '../components/StatusButton'
+import type { SaveStatus } from '../components/StatusButton'
 import type { TablesInsert } from '../types/database.types'
 
 export function BuyerFormPage() {
@@ -15,8 +19,10 @@ export function BuyerFormPage() {
   const [email, setEmail] = useState('')
   const [telefon, setTelefon] = useState('')
   const [notiz, setNotiz] = useState('')
-  const [saving, setSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [error, setError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const triggerShake = useShake(formRef)
 
   useEffect(() => {
     if (!isEdit) return
@@ -31,7 +37,7 @@ export function BuyerFormPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setSaving(true)
+    setSaveStatus('loading')
     setError(null)
     try {
       const payload: TablesInsert<'kaeufer'> = {
@@ -43,11 +49,14 @@ export function BuyerFormPage() {
       }
       if (isEdit && id) await update(id, payload)
       else await create(payload)
-      navigate('/kaeufer')
+      setSaveStatus('success')
+      setTimeout(() => navigate('/kaeufer'), 750)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Unbekannter Fehler')
+      const msg = err instanceof Error ? err.message : 'Unbekannter Fehler'
+      setError(msg)
+      triggerShake()
+      setSaveStatus('idle')
     }
-    setSaving(false)
   }
 
   return (
@@ -56,8 +65,8 @@ export function BuyerFormPage() {
         <h1 className="page-title">{isEdit ? 'Käufer bearbeiten' : 'Neuer Käufer'}</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="form">
-        {error && <div className="alert alert-error">{error}</div>}
+      <form ref={formRef} onSubmit={handleSubmit} className="form">
+        <FormError message={error} />
 
         <div className="form-grid">
           <div className="field">
@@ -84,9 +93,7 @@ export function BuyerFormPage() {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Wird gespeichert…' : 'Speichern'}
-          </button>
+          <StatusButton status={saveStatus}>Speichern</StatusButton>
           <button type="button" className="btn btn-ghost" onClick={() => navigate('/kaeufer')}>
             Abbrechen
           </button>

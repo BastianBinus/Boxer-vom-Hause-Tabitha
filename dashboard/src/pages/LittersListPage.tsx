@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useLitters } from '../hooks/useLitters'
 import { useDogs } from '../hooks/useDogs'
 import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog'
+import { PageSpinner } from '../components/Spinner'
 
 export function LittersListPage() {
   const { litters, loading, softDelete } = useLitters()
@@ -11,7 +12,7 @@ export function LittersListPage() {
 
   const dogName = (id: string) => dogs.find(d => d.id === id)?.name ?? id
 
-  if (loading) return <div className="empty-state">Wird geladen…</div>
+  if (loading) return <PageSpinner />
 
   return (
     <>

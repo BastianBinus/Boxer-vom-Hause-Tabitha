@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kontakt — Boxer vom Hause Tabitha</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <div data-partial="header"></div>
+
+  <main class="page-main">
+    <div class="page-inner">
+      <h1 class="page-title">Kontakt</h1>
+
+      <div style="display: flex; flex-direction: column; gap: 24px; max-width: 560px;">
+        <p style="font-size: 16px; line-height: 1.7; color: var(--color-ink);">
+          Haben Sie Fragen zu einem unserer Hunde, einem aktuellen Wurf oder möchten Sie
+          sich auf die Warteliste eintragen? Ich freue mich über Ihre Nachricht.
+        </p>
+
+        <div class="card card-outlined">
+          <dl class="fact-list">
+            <div class="fact-row">
+              <span class="fact-label">Name</span>
+              <span class="fact-value">[Vorname Nachname]</span>
+            </div>
+            <div class="fact-row">
+              <span class="fact-label">E-Mail</span>
+              <span class="fact-value">
+                <a href="mailto:kontakt@example.ch" style="color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-border);">
+                  kontakt@example.ch
+                </a>
+              </span>
+            </div>
+            <div class="fact-row">
+              <span class="fact-label">Telefon</span>
+              <span class="fact-value">[+41 XX XXX XX XX]</span>
+            </div>
+            <div class="fact-row">
+              <span class="fact-label">Adresse</span>
+              <span class="fact-value">[Strasse Nr], [PLZ Ort], Schweiz</span>
+            </div>
+          </dl>
+        </div>
+
+        <a href="mailto:kontakt@example.ch" class="btn btn-primary" style="display: inline-block; text-align: center; text-decoration: none; width: fit-content;">
+          E-Mail schreiben
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <div data-partial="footer"></div>
+
+  <script type="module">
+    import { loadPartials } from './js/partials.js'
+    loadPartials()
+  </script>
+</body>
+</html>

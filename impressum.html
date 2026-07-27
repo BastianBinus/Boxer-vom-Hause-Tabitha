@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impressum — Boxer vom Hause Tabitha</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <div data-partial="header"></div>
+
+  <main class="page-main">
+    <div class="page-inner">
+      <h1 class="page-title">Impressum</h1>
+
+      <div style="display: flex; flex-direction: column; gap: 32px; max-width: 560px;">
+        <section style="display: flex; flex-direction: column; gap: 8px;">
+          <h2 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--color-ink);">
+            Verantwortlich für den Inhalt
+          </h2>
+          <p style="font-size: 15px; line-height: 1.7; color: var(--color-ink); margin: 0;">
+            [Vorname Nachname]<br>
+            [Strasse Nr]<br>
+            [PLZ Ort]<br>
+            Schweiz
+          </p>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 8px;">
+          <h2 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--color-ink);">
+            Kontakt
+          </h2>
+          <p style="font-size: 15px; line-height: 1.7; color: var(--color-ink); margin: 0;">
+            E-Mail: <a href="mailto:kontakt@example.ch" style="color: var(--color-ink);">kontakt@example.ch</a><br>
+            Telefon: [+41 XX XXX XX XX]
+          </p>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 8px;">
+          <h2 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--color-ink);">
+            Haftungsausschluss
+          </h2>
+          <p style="font-size: 15px; line-height: 1.7; color: var(--color-muted); margin: 0;">
+            Trotz sorgfältiger inhaltlicher Kontrolle übernehme ich keine Haftung für die
+            Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschliesslich
+            deren Betreiber verantwortlich.
+          </p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div data-partial="footer"></div>
+
+  <script type="module">
+    import { loadPartials } from './js/partials.js'
+    loadPartials()
+  </script>
+</body>
+</html>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTrash } from '../hooks/useTrash'
 import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog'
 import type { TrashItem } from '../hooks/useTrash'
+import { PageSpinner } from '../components/Spinner'
 
 type TabKey = 'beitraege' | 'ehemalige' | 'hunde' | 'gesundheitschecks' | 'pruefungen' | 'wuerfe' | 'kaeufer' | 'verkaeufe'
 
@@ -21,7 +22,7 @@ export function TrashPage() {
   const [tab, setTab] = useState<TabKey>('beitraege')
   const [confirmItem, setConfirmItem] = useState<TrashItem | null>(null)
 
-  if (loading) return <div className="empty-state">Wird geladen…</div>
+  if (loading) return <PageSpinner />
 
   const current = items[tab] ?? []
 

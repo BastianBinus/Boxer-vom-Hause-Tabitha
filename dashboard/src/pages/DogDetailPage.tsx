@@ -5,6 +5,7 @@ import { useDog, useDogs } from '../hooks/useDogs'
 import { useHealthChecks } from '../hooks/useHealthChecks'
 import { useExams } from '../hooks/useExams'
 import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog'
+import { PageSpinner } from '../components/Spinner'
 import { calcAge } from '../lib/calcAge'
 
 type Tab = 'uebersicht' | 'gesundheit' | 'pruefungen'
@@ -52,7 +53,7 @@ export function DogDetailPage() {
   const [showExForm, setShowExForm] = useState(false)
   const [exForm, setExForm] = useState(EMPTY_EX)
 
-  if (loading) return <p style={{ color: 'var(--color-muted)', fontSize: 14 }}>Wird geladen…</p>
+  if (loading) return <PageSpinner />
   if (!dog) return <p style={{ color: 'var(--color-muted)', fontSize: 14 }}>Hund nicht gefunden.</p>
 
   const submitHc = async (e: FormEvent) => {

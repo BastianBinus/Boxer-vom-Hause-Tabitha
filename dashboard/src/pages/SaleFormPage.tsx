@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useBuyers } from '../hooks/useBuyers'
+import { useShake } from '../hooks/useShake'
+import { FormError } from '../components/FormError'
+import { StatusButton } from '../components/StatusButton'
+import type { SaveStatus } from '../components/StatusButton'
 import type { Tables, TablesInsert } from '../types/database.types'
 
 export function SaleFormPage() {
@@ -18,8 +22,10 @@ export function SaleFormPage() {
   const [datum, setDatum] = useState('')
   const [preis, setPreis] = useState('')
   const [notiz, setNotiz] = useState('')
-  const [saving, setSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [error, setError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const triggerShake = useShake(formRef)
 
   useEffect(() => {
     if (!isEdit || !id) return
@@ -37,7 +43,7 @@ export function SaleFormPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setSaving(true)
+    setSaveStatus('loading')
     setError(null)
     try {
       const payload: TablesInsert<'verkaeufe'> = {
@@ -55,11 +61,14 @@ export function SaleFormPage() {
         const { error: e } = await supabase.from('verkaeufe').insert(payload)
         if (e) throw e
       }
-      navigate(`/wuerfe/${wurfId}/verkaeufe`)
+      setSaveStatus('success')
+      setTimeout(() => navigate(`/wuerfe/${wurfId}/verkaeufe`), 750)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Unbekannter Fehler')
+      const msg = err instanceof Error ? err.message : 'Unbekannter Fehler'
+      setError(msg)
+      triggerShake()
+      setSaveStatus('idle')
     }
-    setSaving(false)
   }
 
   return (
@@ -68,8 +77,8 @@ export function SaleFormPage() {
         <h1 className="page-title">{isEdit ? 'Verkauf bearbeiten' : 'Neuer Verkauf'}</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="form">
-        {error && <div className="alert alert-error">{error}</div>}
+      <form ref={formRef} onSubmit={handleSubmit} className="form">
+        <FormError message={error} />
 
         <div className="form-grid">
           <div className="field">
@@ -119,9 +128,7 @@ export function SaleFormPage() {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Wird gespeichert…' : 'Speichern'}
-          </button>
+          <StatusButton status={saveStatus}>Speichern</StatusButton>
           <button type="button" className="btn btn-ghost" onClick={() => navigate(wurfId ? `/wuerfe/${wurfId}/verkaeufe` : '/wuerfe')}>
             Abbrechen
           </button>
