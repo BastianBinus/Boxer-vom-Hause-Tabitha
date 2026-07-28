@@ -447,6 +447,79 @@ create policy hundefotos_auth_delete on storage.objects
   using (bucket_id = 'hundefotos');
 ```
 
+### Bekanntes Problem: „new row violates row-level security policy" beim Fotoupload
+
+**Symptom**: Der Hund selbst lässt sich speichern/bearbeiten (Name, Geburtsdatum
+etc.), aber beim Klick auf „Foto hochladen" erscheint direkt unter dem Button
+die Fehlermeldung `new row violates row-level security policy` — der Upload
+in `PhotoUpload.tsx` (`supabase.storage.from('hundefotos').upload(...)`)
+schlägt fehl.
+
+**Ursache**: Das Dashboard-Login (`AuthProvider.tsx`) ist kein echtes Supabase-
+Auth-Login, sondern nur ein clientseitiger Passwortabgleich gegen
+`VITE_ADMIN_PASSWORD`, der ein Flag in `localStorage` setzt. Es gibt im ganzen
+Dashboard-Code keinen einzigen Aufruf von `supabase.auth.signInWithPassword`
+o. ä. — der Supabase-Client (`supabaseClient.ts`) läuft immer nur mit
+`VITE_SUPABASE_ANON_KEY` und `persistSession: false`.
+
+Dass `hunde`-Schreibzugriffe trotzdem funktionieren, obwohl
+`hunde_auth_all` `to authenticated` verlangt, zeigt: Der in
+`dashboard/.env` hinterlegte Key ist kein Standard-Anon-Key, sondern ein
+Token, das serverseitig bereits als `authenticated` behandelt wird. Die
+`hunde_auth_all`-Policy prüft dabei nur `using (true) with check (true)` —
+sie hängt nicht von `auth.uid()` ab. Schlägt der Storage-Upload dennoch fehl,
+liegt es fast immer daran, dass die **live** angelegten Storage-Policies auf
+`storage.objects` von der obigen Migration abweichen — typischerweise, weil
+sie (z. B. über den Policy-Assistenten im Supabase Studio) zusätzlich einen
+Besitzer-Check wie `owner = auth.uid()` enthalten. Da der verwendete Token
+keinem echten `auth.users`-Eintrag entspricht, liefert `auth.uid()` `null`,
+der Check schlägt immer fehl → RLS-Verletzung nur beim Storage-Insert, nicht
+bei Tabellen-Schreibzugriffen.
+
+**Diagnose** (im Supabase Dashboard → SQL Editor ausführen):
+
+```sql
+select policyname, cmd, roles, qual, with_check
+from pg_policies
+where schemaname = 'storage' and tablename = 'objects'
+  and policyname like 'hundefotos%';
+```
+
+Prüfen, ob `with_check` bei den Insert/Update-Policies etwas wie
+`owner = auth.uid()` oder `owner_id = auth.uid()` enthält, oder ob die
+Policies für `hundefotos` ganz fehlen (z. B. Bucket wurde neu angelegt und
+die Policies aus `0004_storage_bucket.sql` wurden nie erneut ausgeführt).
+
+**Fix** (bestehende Policies sauber durch die dokumentierte Fassung ohne
+Besitzer-Check ersetzen):
+
+```sql
+drop policy if exists hundefotos_auth_insert on storage.objects;
+drop policy if exists hundefotos_auth_update on storage.objects;
+drop policy if exists hundefotos_auth_delete on storage.objects;
+drop policy if exists hundefotos_public_read on storage.objects;
+
+create policy hundefotos_public_read on storage.objects
+  for select to anon, authenticated
+  using (bucket_id = 'hundefotos');
+
+create policy hundefotos_auth_insert on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'hundefotos');
+
+create policy hundefotos_auth_update on storage.objects
+  for update to authenticated
+  using (bucket_id = 'hundefotos')
+  with check (bucket_id = 'hundefotos');
+
+create policy hundefotos_auth_delete on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'hundefotos');
+```
+
+Danach den Upload erneut versuchen — kein Dashboard-Redeploy nötig, das ist
+eine reine Datenbank-/Storage-Konfigurationsänderung.
+
 - **Bucket**: `hundefotos`, öffentlich lesbar, 5 MB Größenlimit, nur
   JPEG/PNG/WebP — beides serverseitig über die Bucket-Konfiguration
   erzwungen, nicht nur clientseitig validiert.
