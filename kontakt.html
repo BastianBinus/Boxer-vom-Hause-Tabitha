@@ -50,10 +50,6 @@
           </dl>
         </div>
 
-        <div id="form-success" hidden style="padding: 16px; background: var(--color-cat-mint); border-radius: var(--radius-md); color: var(--color-ink); font-size: 15px; line-height: 1.6;">
-          Vielen Dank für Ihre Nachricht! Ich melde mich so bald wie möglich bei Ihnen.
-        </div>
-
         <div id="form-error" hidden style="padding: 16px; background: var(--color-cat-blush); border-radius: var(--radius-md); color: var(--color-ink); font-size: 15px;"></div>
 
         <form id="contact-form" style="display: flex; flex-direction: column; gap: 16px;">
@@ -107,7 +103,6 @@
 
   <script>
     const form = document.getElementById('contact-form');
-    const successEl = document.getElementById('form-success');
     const errorEl = document.getElementById('form-error');
     const submitBtn = document.getElementById('submit-btn');
 
@@ -125,8 +120,11 @@
         });
 
         if (res.ok) {
-          form.hidden = true;
-          successEl.hidden = false;
+          submitBtn.textContent = '✓ Nachricht gesendet';
+          submitBtn.style.background = 'var(--color-cat-mint)';
+          submitBtn.style.color = 'var(--color-ink)';
+          submitBtn.style.border = '2px solid oklch(65% 0.12 150)';
+          form.reset();
         } else {
           const data = await res.json();
           errorEl.textContent = (data.errors && data.errors[0] && data.errors[0].message) || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
