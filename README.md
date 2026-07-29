@@ -432,20 +432,56 @@ create policy hundefotos_public_read on storage.objects
   for select to anon, authenticated
   using (bucket_id = 'hundefotos');
 
--- nur eingeloggte Dashboard-User dürfen hochladen/ersetzen/löschen
+-- Dashboard-User dürfen hochladen/ersetzen/löschen. Das Dashboard-Login ist
+-- kein echtes Supabase-Auth (AuthProvider.tsx macht nur einen clientseitigen
+-- Passwortabgleich, supabaseClient.ts läuft mit persistSession: false) —
+-- der Client agiert also immer als Postgres-Rolle `anon`, nie `authenticated`.
+-- Deshalb braucht der Bucket zusätzlich zu den authenticated-Policies auch
+-- anon-Policies, analog zu ehemalige-fotos.
 create policy hundefotos_auth_insert on storage.objects
   for insert to authenticated
+  with check (bucket_id = 'hundefotos');
+create policy hundefotos_anon_insert on storage.objects
+  for insert to anon
   with check (bucket_id = 'hundefotos');
 
 create policy hundefotos_auth_update on storage.objects
   for update to authenticated
   using (bucket_id = 'hundefotos')
   with check (bucket_id = 'hundefotos');
+create policy hundefotos_anon_update on storage.objects
+  for update to anon
+  using (bucket_id = 'hundefotos')
+  with check (bucket_id = 'hundefotos');
 
 create policy hundefotos_auth_delete on storage.objects
   for delete to authenticated
   using (bucket_id = 'hundefotos');
+create policy hundefotos_anon_delete on storage.objects
+  for delete to anon
+  using (bucket_id = 'hundefotos');
 ```
+
+### Behoben: „new row violates row-level security policy" beim Fotoupload
+
+**Symptom war**: Der Hund selbst ließ sich speichern/bearbeiten (Name,
+Geburtsdatum etc.), aber beim Klick auf „Foto hochladen" erschien direkt
+unter dem Button die Fehlermeldung `new row violates row-level security
+policy` — der Upload in `PhotoUpload.tsx`
+(`supabase.storage.from('hundefotos').upload(...)`) schlug fehl.
+
+**Ursache**: `hunde` hatte (zusätzlich zu `hunde_auth_all`) eine
+`hunde_anon_all`-Policy, wodurch Tabellen-Schreibzugriffe über den
+Dashboard-Client — der wegen des rein clientseitigen Passwort-Logins immer
+als `anon`-Rolle läuft — funktionierten. Für den `hundefotos`-Bucket gab es
+diese anon-Policies für Insert/Update/Delete nicht, nur die
+`authenticated`-Varianten oben — daher schlug ausschließlich der
+Fotoupload fehl.
+
+**Fix**: `hundefotos_anon_insert`/`_update`/`_delete` (siehe Migration
+oben) ergänzt, analog zum bereits für `ehemalige-fotos` verwendeten Muster.
+Reine Datenbank-/Storage-Konfigurationsänderung, kein Dashboard-Redeploy
+nötig.
 
 - **Bucket**: `hundefotos`, öffentlich lesbar, 5 MB Größenlimit, nur
   JPEG/PNG/WebP — beides serverseitig über die Bucket-Konfiguration
