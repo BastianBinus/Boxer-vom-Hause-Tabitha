@@ -155,13 +155,21 @@ export function DogDetailPage() {
             {(dog.mutter_extern_name || dog.mutter_id) && (
               <div className="fact-card">
                 <div className="fact-label">Mutter</div>
-                <div className="fact-value">{dog.mutter_extern_name ?? dog.mutter_id ?? '—'}</div>
+                <div className="fact-value">
+                  {dog.mutter_extern_name
+                    ? [dog.mutter_extern_name, dog.mutter_extern_zwinger].filter(Boolean).join(' v. ')
+                    : dog.mutter_id ?? '—'}
+                </div>
               </div>
             )}
             {(dog.vater_extern_name || dog.vater_id) && (
               <div className="fact-card">
                 <div className="fact-label">Vater</div>
-                <div className="fact-value">{dog.vater_extern_name ?? dog.vater_id ?? '—'}</div>
+                <div className="fact-value">
+                  {dog.vater_extern_name
+                    ? [dog.vater_extern_name, dog.vater_extern_zwinger].filter(Boolean).join(' v. ')
+                    : dog.vater_id ?? '—'}
+                </div>
               </div>
             )}
           </div>
