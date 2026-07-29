@@ -196,9 +196,9 @@ export type Database = {
       pruefungen: {
         Row: {
           art: string
-          datum: string
+          datum: string | null
           deleted_at: string | null
-          ergebnis: string
+          ergebnis: string | null
           hund_id: string
           id: string
           notiz: string | null
@@ -206,9 +206,9 @@ export type Database = {
         }
         Insert: {
           art: string
-          datum: string
+          datum?: string | null
           deleted_at?: string | null
-          ergebnis: string
+          ergebnis?: string | null
           hund_id: string
           id?: string
           notiz?: string | null
@@ -216,9 +216,9 @@ export type Database = {
         }
         Update: {
           art?: string
-          datum?: string
+          datum?: string | null
           deleted_at?: string | null
-          ergebnis?: string
+          ergebnis?: string | null
           hund_id?: string
           id?: string
           notiz?: string | null

@@ -245,12 +245,12 @@ export function DogDetailPage() {
                   <input className="field-input" value={exForm.art} onChange={e => setExForm(p => ({ ...p, art: e.target.value }))} required placeholder="z. B. Wesenstest" />
                 </div>
                 <div className="field">
-                  <label className="field-label">Ergebnis *</label>
-                  <input className="field-input" value={exForm.ergebnis} onChange={e => setExForm(p => ({ ...p, ergebnis: e.target.value }))} required placeholder="z. B. Bestanden" />
+                  <label className="field-label">Ergebnis</label>
+                  <input className="field-input" value={exForm.ergebnis} onChange={e => setExForm(p => ({ ...p, ergebnis: e.target.value }))} placeholder="z. B. Bestanden" />
                 </div>
                 <div className="field">
-                  <label className="field-label">Datum *</label>
-                  <input className="field-input" type="date" value={exForm.datum} onChange={e => setExForm(p => ({ ...p, datum: e.target.value }))} required />
+                  <label className="field-label">Datum</label>
+                  <input className="field-input" type="date" value={exForm.datum} onChange={e => setExForm(p => ({ ...p, datum: e.target.value }))} />
                 </div>
                 <div className="field">
                   <label className="field-label">Ort / Verein</label>
@@ -277,9 +277,9 @@ export function DogDetailPage() {
             {exams.map(ex => (
               <div key={ex.id} className="inline-row">
                 <div className="inline-row-info">
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{ex.art} — {ex.ergebnis}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14 }}>{ex.art}{ex.ergebnis ? ` — ${ex.ergebnis}` : ''}</div>
                   <div style={{ fontSize: 13, color: 'var(--color-muted)' }}>
-                    {ex.datum}{ex.ort ? ` · ${ex.ort}` : ''}
+                    {[ex.datum, ex.ort].filter(Boolean).join(' · ')}
                   </div>
                   {ex.notiz && <div style={{ fontSize: 12, color: 'var(--color-muted)', marginTop: 2 }}>{ex.notiz}</div>}
                 </div>
