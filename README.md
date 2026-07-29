@@ -12,7 +12,7 @@
 | Website | https://boxer-vom-hause-tabitha.vercel.app | Production |
 | Dashboard | https://dashboard-delta-seven-67.vercel.app | Production |
 
-Dashboard-Login-Passwort: in `dashboard/.env` als `VITE_ADMIN_PASSWORD`.
+Dashboard-Login-Passwort: in `Vercel/Environmental Settings` als `VITE_ADMIN_PASSWORD`.
 
 ---
 
