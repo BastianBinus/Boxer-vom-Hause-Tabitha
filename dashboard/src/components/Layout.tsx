@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import { Horizon } from '@theme-toggles/react'
-import '@theme-toggles/react/dist/styles/horizon.css'
+import '@theme-toggles/react/styles/horizon.css'
 
 const NAV = [
   {
