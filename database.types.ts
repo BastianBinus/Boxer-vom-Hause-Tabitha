@@ -57,7 +57,7 @@ export type Database = {
         Row: {
           datum: string
           deleted_at: string | null
-          ergebnis: string
+          ergebnis: string | null
           hund_id: string
           id: string
           kategorie: string
@@ -67,7 +67,7 @@ export type Database = {
         Insert: {
           datum: string
           deleted_at?: string | null
-          ergebnis: string
+          ergebnis?: string | null
           hund_id: string
           id?: string
           kategorie: string
@@ -77,7 +77,7 @@ export type Database = {
         Update: {
           datum?: string
           deleted_at?: string | null
-          ergebnis?: string
+          ergebnis?: string | null
           hund_id?: string
           id?: string
           kategorie?: string

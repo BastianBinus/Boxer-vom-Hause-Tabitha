@@ -184,8 +184,8 @@ export function DogDetailPage() {
                   <input className="field-input" value={hcForm.kategorie} onChange={e => setHcForm(p => ({ ...p, kategorie: e.target.value }))} required placeholder="z. B. HD-Röntgen" />
                 </div>
                 <div className="field">
-                  <label className="field-label">Ergebnis *</label>
-                  <input className="field-input" value={hcForm.ergebnis} onChange={e => setHcForm(p => ({ ...p, ergebnis: e.target.value }))} required placeholder="z. B. HD-A" />
+                  <label className="field-label">Ergebnis</label>
+                  <input className="field-input" value={hcForm.ergebnis} onChange={e => setHcForm(p => ({ ...p, ergebnis: e.target.value }))} placeholder="z. B. HD-A" />
                 </div>
                 <div className="field">
                   <label className="field-label">Datum *</label>
@@ -216,7 +216,7 @@ export function DogDetailPage() {
             {checks.map(c => (
               <div key={c.id} className="inline-row">
                 <div className="inline-row-info">
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{c.kategorie} — {c.ergebnis}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14 }}>{c.kategorie}{c.ergebnis ? ` — ${c.ergebnis}` : ''}</div>
                   <div style={{ fontSize: 13, color: 'var(--color-muted)' }}>
                     {c.datum}{c.tierarzt ? ` · ${c.tierarzt}` : ''}
                   </div>
@@ -249,8 +249,8 @@ export function DogDetailPage() {
                   <input className="field-input" value={exForm.ergebnis} onChange={e => setExForm(p => ({ ...p, ergebnis: e.target.value }))} placeholder="z. B. Bestanden" />
                 </div>
                 <div className="field">
-                  <label className="field-label">Datum</label>
-                  <input className="field-input" type="date" value={exForm.datum} onChange={e => setExForm(p => ({ ...p, datum: e.target.value }))} />
+                  <label className="field-label">Datum *</label>
+                  <input className="field-input" type="date" value={exForm.datum} onChange={e => setExForm(p => ({ ...p, datum: e.target.value }))} required />
                 </div>
                 <div className="field">
                   <label className="field-label">Ort / Verein</label>
